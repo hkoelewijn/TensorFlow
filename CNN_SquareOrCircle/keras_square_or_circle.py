@@ -1,5 +1,4 @@
 import numpy as np
-import pygame as pg
 import tensorflow as tf
 import keras
 from keras.datasets import mnist
@@ -7,52 +6,21 @@ from keras.layers import Dense, Flatten, Dropout
 from keras.layers import Conv2D, MaxPooling2D
 from keras.models import Sequential
 import matplotlib.pylab as plt
+import load_data as ld
 
 batch_size = 128
 epochs = 10
-width = 64
-height = 64
+width = 56
+height = 56
 classes = ['square', 'circle']
 num_classes = len(classes)
 
-def load_data(num_samples):
-    images = []
-    labels = []
-    for sample in range(0, num_samples):
-        choose = np.random.randint(0, 2)
-        
-        surface = pg.surface.Surface((width, height))
-
-        surface.fill((0, 0, 0))
-
-        size = np.random.randint(10, width-20)
-        left = np.random.randint(0, width - size)
-        top = np.random.randint(0, width - size)
-
-        if (choose == 0):
-            rect = pg.Rect(left, top, size, size)
-            pg.draw.rect(surface, (255,255,255), rect)
-        else:
-            pg.draw.ellipse(surface, (255,255,255), [left, top, size, size])
-        
-        image_data = pg.surfarray.array3d(surface)
-        
-        labels.append(choose)
-        images.append(image_data)
-
-    return np.array(images), np.array(labels)
-
 print('Generating training data')
 
-(x_train, y_train) = load_data(1000)
-(x_test, y_test) = load_data(300)
+(x_train, y_train) = ld.load_data(1000, width, height)
+(x_test, y_test) = ld.load_data(300, width, height)
 input_shape = (width, height, 3)
 
-# convert the data to the right type
-x_train = x_train.astype('float32')
-x_test = x_test.astype('float32')
-x_train /= 255
-x_test /= 255
 
 print('Completed generation of training data')
 print('x_train shape:', x_train.shape)
