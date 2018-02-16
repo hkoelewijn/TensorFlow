@@ -2,6 +2,8 @@ import numpy as np
 import tensorflow as tf
 import load_data as ld
 
+tf.logging.set_verbosity(tf.logging.INFO)
+
 width = 56
 height = 56
 
@@ -28,11 +30,12 @@ def cnn_model_fn(features, labels, mode):
       padding="same",
       activation=tf.nn.relu)
 
+
   # Dense Layer
-  pool2_flat = tf.reshape(conv2, [-1, 7 * 7 * 16])
+  pool2_flat = tf.reshape(conv2, [-1, 4 * 7 * 7 * 16])
   dense = tf.layers.dense(inputs=pool2_flat, units=200, activation=tf.nn.relu)
   dropout = tf.layers.dropout(
-      inputs=dense, rate=0.4, training=mode == tf.estimator.ModeKeys.TRAIN)
+      inputs=dense, rate=0.25, training=mode == tf.estimator.ModeKeys.TRAIN)
 
   # Logits Layer
   logits = tf.layers.dense(inputs=dropout, units=2)
@@ -53,7 +56,7 @@ def cnn_model_fn(features, labels, mode):
 
   # Configure the Training Op (for TRAIN mode)
   if mode == tf.estimator.ModeKeys.TRAIN:
-    optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.001)
+    optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.03)
     train_op = optimizer.minimize(
         loss=loss,
         global_step=tf.train.get_global_step())

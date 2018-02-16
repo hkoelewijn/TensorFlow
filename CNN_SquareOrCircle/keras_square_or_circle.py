@@ -7,6 +7,10 @@ from keras.layers import Conv2D, MaxPooling2D
 from keras.models import Sequential
 import matplotlib.pylab as plt
 import load_data as ld
+from keras.callbacks import TensorBoard
+
+tensorboard = TensorBoard(log_dir='./logs', histogram_freq=0,
+                          write_graph=True, write_images=False)
 
 batch_size = 128
 epochs = 10
@@ -17,8 +21,8 @@ num_classes = len(classes)
 
 print('Generating training data')
 
-(x_train, y_train) = ld.load_data(1000, width, height)
-(x_test, y_test) = ld.load_data(300, width, height)
+(x_train, y_train) = ld.load_data(10000, width, height)
+(x_test, y_test) = ld.load_data(3000, width, height)
 input_shape = (width, height, 3)
 
 
@@ -61,7 +65,7 @@ model.fit(x_train, y_train,
           epochs=epochs,
           verbose=1,
           validation_data=(x_test, y_test),
-          callbacks=[history])
+          callbacks=[history, tensorboard])
 score = model.evaluate(x_test, y_test, verbose=0)
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])
