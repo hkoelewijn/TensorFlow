@@ -1,31 +1,34 @@
 import image_helper
 import os
 import pygame
+import random
 
-(max_width, max_height) = image_helper.get_max_size_all_images("./categories")
-
-print("Max_width = {0}".format(max_width))
-print("Max_height = {0}".format(max_height))
-
-
-if (max_width > 1280):
-    max_width = 1280
-if (max_height > 768):
-    max_height = 768 
+width = 72
+height = 40
+categories_folder = "./categories"
+destination_folder_prefix = "FORMAT"
 
 pygame.init()
-screen = pygame.display.set_mode((1280, 768))
 
-for category_dir in image_helper.get_immediate_subdirectories("./categories"):
-    dest_path = "./FORMAT_1280x768/" + category_dir
+screen = pygame.display.set_mode((width, height))
+
+for category_dir in image_helper.get_immediate_subdirectories(categories_folder):
+    dest_path = f"./{destination_folder_prefix}_{width}x{height}/{category_dir}"
 
     if (os.path.exists(dest_path)):
         os.remove(dest_path)
     
     os.makedirs(dest_path)
 
-    for file in os.listdir("./categories/" + category_dir):
-        input_path = "{0}/{1}/{2}".format("./categories", category_dir, file)
-        output_path = "{0}/{1}".format(dest_path, file)
-        image_helper.process_image(screen, input_path, output_path, max_width, max_height)
+    fileNames = os.listdir("{0}/{1}".format(categories_folder, category_dir))
+    
+    fileCounter = 0
+    for file in fileNames:
+        input_path = "{0}/{1}/{2}".format(categories_folder, category_dir, file)
+
+        output_path = "{0}/{1}.jpg".format(dest_path, file)
+
+        image_helper.process_image(screen, input_path, output_path, width, height)
+
+        fileCounter += 1
 

@@ -61,7 +61,6 @@ def process_image(screen, image_path, destination_path, target_width, target_hei
     image = image.convert(24)
 
     if (width > target_width or height > target_height):
-        print("WARNING: Scaling down image " + image_path)
         scale_x = width / target_width
         scale_y = height / target_height
 
@@ -75,9 +74,7 @@ def process_image(screen, image_path, destination_path, target_width, target_hei
             scaled_width = target_width
             scaled_height = round(0.5 + height / scale_x)
 
-        image = pg.transform.smoothscale(image, (scaled_width, scaled_height))
-    
-        print("Scaled down to {0} x {1}".format(scaled_width, scaled_height))
+        image = pg.transform.smoothscale(image, (scaled_width, scaled_height))    
     
     x_offset = (target_width - image.get_width()) / 2
     y_offset = (target_height - image.get_height()) / 2
