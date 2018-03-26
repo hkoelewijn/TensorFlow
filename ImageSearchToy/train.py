@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import tensorflow_helpers as tfh
 from image_loader import ImageLoader
 import numpy as np
+import datetime
 
 width = 72
 height = 40
@@ -15,17 +16,19 @@ loader = ImageLoader("./FORMAT_72x40")
 
 train_x, train_y, test_x, test_y = loader.GetData()
 
-convo_1 = tfh.convolutional_layer(x,shape=[5,5,3,32])
-convo_1_pooling = tfh.max_pool_2by2(convo_1)
+convo_1a = tfh.convolutional_layer(x,shape=[5,5,3,64])
+convo_1b = tfh.convolutional_layer(convo_1a,shape=[5,5,64,64])
+convo_1_pooling = tfh.max_pool_2by2(convo_1b)
 
-convo_2 = tfh.convolutional_layer(convo_1_pooling,shape=[5,5,32,64])
-convo_2_pooling = tfh.max_pool_2by2(convo_2)
+convo_2a = tfh.convolutional_layer(convo_1_pooling,shape=[5,5,64,64])
+convo_2b = tfh.convolutional_layer(convo_2a,shape=[5,5,64,64])
+convo_2_pooling = tfh.max_pool_2by2(convo_2b)
 
 convo_2_flat = tf.reshape(convo_2_pooling,[-1,18*10*64])
 
 full_layer_one = tf.nn.relu(tfh.normal_full_layer(convo_2_flat,512))
 
-full_layer_two = tf.nn.relu(tfh.normal_full_layer(full_layer_one,128))
+full_layer_two = tf.nn.relu(tfh.normal_full_layer(full_layer_one,256))
 
 full_one_dropout = tf.nn.dropout(full_layer_two,keep_prob=0.25)
 
@@ -39,8 +42,12 @@ init = tf.global_variables_initializer()
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
+    saver = tf.train.Saver()
+    now = str(datetime.datetime.now().time())
 
-    for i in range(500):
+    max_accuracy = 0.75
+
+    for i in range(5000):
         sess.run(train, feed_dict={x: train_x, y_true: train_y, hold_prob:0.25})
         
         # PRINT OUT A MESSAGE EVERY 50 STEPS
@@ -51,5 +58,10 @@ with tf.Session() as sess:
 
             acc = tf.reduce_mean(tf.cast(matches,tf.float32))
 
-            print(f'Step {i}')
-            print(sess.run(acc,feed_dict={x:test_x,y_true:test_y,hold_prob:1.0}))
+            accuracy = sess.run(acc,feed_dict={x:test_x,y_true:test_y,hold_prob:1.0})
+            print(f'{now}: Step {i}, accuracy = {accuracy}')
+
+            if (accuracy > max_accuracy):
+                saver.save(sess, './model',global_step=i)
+                max_accuracy = accuracy
+
