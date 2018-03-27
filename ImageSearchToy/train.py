@@ -36,8 +36,10 @@ optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
 train = optimizer.minimize(cross_entropy)
 
 init = tf.global_variables_initializer()
+config = tf.ConfigProto()
+config.gpu_options.per_process_gpu_memory_fraction = 0.6
 
-with tf.Session() as sess:
+with tf.Session(config=config) as sess:
     sess.run(tf.global_variables_initializer())
 
     for i in range(500):
