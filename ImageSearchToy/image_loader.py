@@ -29,16 +29,25 @@ class ImageLoader:
     random.shuffle(images)
     threshold = len(images) * 7 // 10
 
-    train = images[:threshold]
-    test = images[threshold:]
+    self.train = images[:threshold]
+    self.test = images[threshold:]
 
-    self.train_x = np.array([t[0] for t in train])
-    self.train_y = np.array([t[1] for t in train])
-    self.test_x = np.array([t[0] for t in test])
-    self.test_y = np.array([t[1] for t in test])
 
-  def GetData(self):
-    return self.train_x, self.train_y, self.test_x, self.test_y
+  def GetTrainData(self, batch_size):
+    np.random.shuffle(self.train)
+    
+    train_x = np.array([t[0] for t in self.train])[:batch_size]
+    train_y = np.array([t[1] for t in self.train])[:batch_size]
+    
+    return train_x, train_y
+
+  def GetTestData(self, batch_size):
+    np.random.shuffle(self.test)
+
+    test_x = np.array([t[0] for t in self.test])[:batch_size]
+    test_y = np.array([t[1] for t in self.test])[:batch_size]
+
+    return test_x, test_y
 
   def _get_immediate_subdirectories(self, a_dir):
     return [name for name in os.listdir(a_dir)

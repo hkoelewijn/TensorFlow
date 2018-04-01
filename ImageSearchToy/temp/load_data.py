@@ -14,7 +14,7 @@ def get_nb_files(directory):
 
 
 def load_data(width, height, type, batch_size):
-  directory = f'./FORMAT_{width}x{height}/{type}'
+  directory = f'../FORMAT_{width}x{height}'
 
   # data prep
   generator = ImageDataGenerator()

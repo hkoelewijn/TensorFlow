@@ -1,6 +1,2 @@
-model_checkpoint_path: "model-2110"
-all_model_checkpoint_paths: "model-2070"
-all_model_checkpoint_paths: "model-2080"
-all_model_checkpoint_paths: "model-2090"
-all_model_checkpoint_paths: "model-2100"
-all_model_checkpoint_paths: "model-2110"
+model_checkpoint_path: "model"
+all_model_checkpoint_paths: "model"
