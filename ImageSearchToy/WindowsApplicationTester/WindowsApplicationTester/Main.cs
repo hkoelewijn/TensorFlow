@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WindowsApplicationTester
 {
     public partial class Main : Form
     {
+        private delegate void UpdateImageDelegate(Bitmap image);
+
         public Main()
         {
             InitializeComponent();
@@ -108,38 +111,51 @@ namespace WindowsApplicationTester
         {
             if (windowsList.SelectedItems.Count > 0)
             {
-                var window = (Window) windowsList.SelectedItems[0].Tag;
-                if (!window.IsToMostOfProcess && window.Process.Id > 0)
-                {
-                    foreach (ListViewItem item in windowsList.Items)
-                    {
-                        var activeWindowCandidate = (Window) item.Tag;
+                resultText.Text = @"Taking screenshot...";
+                resultPanel.BackColor = Color.DeepSkyBlue;
 
-                        if (activeWindowCandidate.IsToMostOfProcess &&
-                            activeWindowCandidate.Process.Id == window.Process.Id)
-                        {
-                            window = activeWindowCandidate;
-                            break;
-                        }
-                    }
-                }
-                var image = ScreenshotHelper.MakeSnapshot(window.Handle, false, Win32Api.WindowShowStyle.Restore);
-
-                screenshot.Image?.Dispose();
-
-                screenshot.Image = image;
-
-                WindowState = FormWindowState.Minimized;
-                Show();
-                WindowState = FormWindowState.Normal;
-
-                ValidateImage();
+                Task.Run(() => TakeScreenshot());
             }
             else
             {
                 resultText.Text = @"Please select a window from the text.";
                 resultPanel.BackColor = Color.Gray;
             }
+        }
+
+        private void TakeScreenshot()
+        {
+            var window = (Window)windowsList.SelectedItems[0].Tag;
+            if (!window.IsToMostOfProcess && window.Process.Id > 0)
+            {
+                foreach (ListViewItem item in windowsList.Items)
+                {
+                    var activeWindowCandidate = (Window)item.Tag;
+
+                    if (activeWindowCandidate.IsToMostOfProcess &&
+                        activeWindowCandidate.Process.Id == window.Process.Id)
+                    {
+                        window = activeWindowCandidate;
+                        break;
+                    }
+                }
+            }
+            var image = ScreenshotHelper.MakeSnapshot(window.Handle, false, Win32Api.WindowShowStyle.Restore);
+
+            Invoke(new UpdateImageDelegate(UpdateImage), image);
+        }
+
+        private void UpdateImage(Bitmap image)
+        {
+            screenshot.Image?.Dispose();
+
+            screenshot.Image = image;
+
+            WindowState = FormWindowState.Minimized;
+            Show();
+            WindowState = FormWindowState.Normal;
+
+            ValidateImage();
         }
 
         private void RefreshProcesses(object sender, EventArgs e)
@@ -150,6 +166,9 @@ namespace WindowsApplicationTester
 
         private void ValidateImage()
         {
+            resultText.Text = @"Validating image...";
+            resultPanel.BackColor = Color.DeepSkyBlue;
+
             var validator = new ImageVerificationDialog {VerificationImage = screenshot.Image};
 
             validator.StartValidation(this);
